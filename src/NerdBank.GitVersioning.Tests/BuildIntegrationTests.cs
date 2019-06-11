@@ -799,7 +799,7 @@ public class BuildIntegrationTests : RepoTestBase, IClassFixture<MSBuildFixture>
         if (gitRepo)
         {
             Assert.True(long.TryParse(result.GitCommitDateTicks, out _), $"Invalid value for GitCommitDateTicks: '{result.GitCommitDateTicks}'");
-            DateTimeOffset gitCommitDate = new DateTimeOffset(long.Parse(result.GitCommitDateTicks), TimeSpan.Zero);
+            var gitCommitDate = new DateTime(long.Parse(result.GitCommitDateTicks), DateTimeKind.Utc);
             Assert.Equal(gitCommitDate, thisAssemblyClass.GetProperty("GitCommitDate", fieldFlags)?.GetValue(null) ?? thisAssemblyClass.GetField("GitCommitDate", fieldFlags)?.GetValue(null) ?? string.Empty);
         }
         else
@@ -1013,8 +1013,7 @@ public class BuildIntegrationTests : RepoTestBase, IClassFixture<MSBuildFixture>
 
         string GetPkgVersionSuffix(bool useSemVer2)
         {
-            string semVer1CommitPrefix = useSemVer2 ? string.Empty : "g";
-            string pkgVersionSuffix = buildResult.PublicRelease ? string.Empty : $"-{semVer1CommitPrefix}{commitIdShort}";
+            string pkgVersionSuffix = buildResult.PublicRelease ? string.Empty : $"-g{commitIdShort}";
             if (useSemVer2)
             {
                 pkgVersionSuffix += expectedBuildMetadataWithoutCommitId;
